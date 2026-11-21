@@ -36,6 +36,15 @@ jobs:
           fi
           unzip -o "$ZIP_FILE" -d build-project
 
+      - name: Fix escaped tab characters in Gradle files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          for f in Path("build-project").rglob("*.gradle"):
+              s = f.read_text()
+              f.write_text(s.replace("\\t", "\t"))
+          PY
+
       - name: Build APK
         run: |
           PROJECT_DIR=$(find build-project -name settings.gradle -printf '%h\n' | head -n 1)
